@@ -173,7 +173,178 @@ class OBJCXRDetectionDataset(BaseImageDataset):
         return sample
 
 
+class KVASIRDetectionDataset(BaseImageDataset):
+
+    def __init__(self, split="train", transform=None, data_pct=1., imsize=224, max_objects=20):
+        # TODO: resize in detection is different from that in classification.
+        super().__init__(split, transform)
+        if not os.path.exists(KVASIR_DATA_DIR):
+            raise RuntimeError(f"{KVASIR_DATA_DIR} does not exist!")
+
+        if self.split == "train":
+            with open(KVASIR_TRAIN_PKL, "rb") as f:
+                filenames, bboxs = pickle.load(f)
+        elif self.split == "valid":
+            with open(KVASIR_VAL_PKL, "rb") as f:
+                filenames, bboxs = pickle.load(f)
+        elif self.split == "test":
+            with open(KVASIR_TEST_PKL, "rb") as f:
+                filenames, bboxs = pickle.load(f)
+        else:
+            raise ValueError(f"split {split} does not exist!")
+
+        self.filenames_list = []
+        self.bboxs_list = []
+        for i in range(len(bboxs)):
+            filename = filenames[i]
+            bbox = bboxs[i]
+            bbox = np.array(bbox)
+
+            padding = np.zeros((max_objects - len(bbox), 4))
+            bbox = np.vstack((bbox, padding))
+            bbox = np.hstack((np.zeros((max_objects, 1)), bbox))
+
+            new_bbox = bbox.copy()
+            # xminyminwh -> xywh
+            new_bbox[:, 1] = bbox[:, 1] + bbox[:, 3] / 2
+            new_bbox[:, 2] = bbox[:, 2] + bbox[:, 4] / 2
+
+            self.filenames_list.append(filename)
+            self.bboxs_list.append(new_bbox)
+
+        n = len(self.filenames_list)
+        self.filenames_list = np.array(self.filenames_list)
+        self.bboxs_list = np.array(self.bboxs_list)
+        if split == "train":
+            indices = np.random.choice(n, int(data_pct * n), replace=False)
+            self.filenames_list = self.filenames_list[indices]
+            self.bboxs_list = self.bboxs_list[indices]
+
+        self.imsize = imsize
+
+    def __len__(self):
+        return len(self.filenames_list)
+
+    def __getitem__(self, index):
+        filename = self.filenames_list[index]
+        if self.split == "train":
+            img_path = KVASIR_TRAIN_IMG_PATH / filename
+        elif self.split == "valid":
+            img_path = KVASIR_VAL_IMG_PATH / filename
+        elif self.split == "test":
+            img_path = KVASIR_TEST_IMG_PATH / filename
+        else:
+            raise RuntimeError()
+
+        x = cv2.imread(str(img_path))
+        h, w, _ = x.shape
+        x = cv2.cvtColor(x, cv2.COLOR_BGR2RGB)
+        x = cv2.resize(x, (self.imsize, self.imsize),
+                       interpolation=cv2.INTER_LINEAR)
+
+        if self.transform:
+            x = self.transform(x)
+
+        y = self.bboxs_list[index]
+        y[:, 1] /= w
+        y[:, 3] /= w
+        y[:, 2] /= h
+        y[:, 4] /= h
+
+        sample = {
+            "imgs": x,
+            "labels": y
+        }
+
+        return sample
+    
+
+class ENDODANHHUYDetectionDataset(BaseImageDataset):
+
+    def __init__(self, split="train", transform=None, data_pct=1., imsize=224, max_objects=60):
+        # TODO: resize in detection is different from that in classification.
+        super().__init__(split, transform)
+        if not os.path.exists(ENDODANHHUY_DATA_DIR):
+            raise RuntimeError(f"{ENDODANHHUY_DATA_DIR} does not exist!")
+
+        if self.split == "train":
+            with open(ENDODANHHUY_TRAIN_PKL, "rb") as f:
+                filenames, bboxs = pickle.load(f)
+        elif self.split == "valid":
+            with open(KENDODANHHUY_VAL_PKL, "rb") as f:
+                filenames, bboxs = pickle.load(f)
+        elif self.split == "test":
+            with open(ENDODANHHUY_TEST_PKL, "rb") as f:
+                filenames, bboxs = pickle.load(f)
+        else:
+            raise ValueError(f"split {split} does not exist!")
+
+        self.filenames_list = []
+        self.bboxs_list = []
+        for i in range(len(bboxs)):
+            filename = filenames[i]
+            bbox = bboxs[i]
+            bbox = np.array(bbox)
+
+            padding = np.zeros((max_objects - len(bbox), 5))
+            bbox = np.vstack((bbox, padding))
+            # bbox = np.hstack((np.zeros((max_objects, 1)), bbox))
+
+            new_bbox = bbox.copy()
+            # xminyminwh -> xywh
+            new_bbox[:, 1] = bbox[:, 1] + bbox[:, 3] / 2
+            new_bbox[:, 2] = bbox[:, 2] + bbox[:, 4] / 2
+
+            self.filenames_list.append(filename)
+            self.bboxs_list.append(new_bbox)
+
+        n = len(self.filenames_list)
+        self.filenames_list = np.array(self.filenames_list)
+        self.bboxs_list = np.array(self.bboxs_list)
+        if split == "train":
+            indices = np.random.choice(n, int(data_pct * n), replace=False)
+            self.filenames_list = self.filenames_list[indices]
+            self.bboxs_list = self.bboxs_list[indices]
+
+        self.imsize = imsize
+
+    def __len__(self):
+        return len(self.filenames_list)
+
+    def __getitem__(self, index):
+        filename = self.filenames_list[index]
+        if self.split == "train":
+            img_path = ENDODANHHUY_TRAIN_IMG_PATH / filename
+        elif self.split == "valid":
+            img_path = ENDODANHHUY_VAL_IMG_PATH / filename
+        elif self.split == "test":
+            img_path = ENDODANHHUY_TEST_IMG_PATH / filename
+        else:
+            raise RuntimeError()
+
+        x = cv2.imread(str(img_path))
+        h, w, _ = x.shape
+        x = cv2.cvtColor(x, cv2.COLOR_BGR2RGB)
+        x = cv2.resize(x, (self.imsize, self.imsize),
+                       interpolation=cv2.INTER_LINEAR)
+
+        if self.transform:
+            x = self.transform(x)
+
+        y = self.bboxs_list[index]
+        y[:, 1] /= w
+        y[:, 3] /= w
+        y[:, 2] /= h
+        y[:, 4] /= h
+
+        sample = {
+            "imgs": x,
+            "labels": y
+        }
+
+        return sample
+
 if __name__ == "__main__":
-    dataset = RSNADetectionDataset(data_pct=0.01)
+    dataset = KVASIRDetectionDataset()
     print(len(dataset))
     print(dataset[0])

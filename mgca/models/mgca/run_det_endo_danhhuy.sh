@@ -1,0 +1,2 @@
+CUDA_VISIBLE_DEVICES=0 python mgca_detector.py --devices 1 --dataset endo_danhhuy --data_pct 0.1 --learning_rate 5e-4
+CUDA_VISIBLE_DEVICES=0 python mgca_detector.py --devices 1 --dataset endo_danhhuy --data_pct 1 --learning_rate 5e-4

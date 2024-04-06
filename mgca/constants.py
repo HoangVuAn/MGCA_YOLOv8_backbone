@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 DATA_BASE_DIR = os.path.join(os.path.dirname(
-    os.path.abspath(__file__)), "../../data")
+    os.path.abspath(__file__)), "data")
 DATA_BASE_DIR = Path(DATA_BASE_DIR)
 # #############################################
 # CheXpert constants
@@ -255,11 +255,61 @@ VIN_TEST_CSV = VIN_DATA_DIR / "test_df.csv"
 # Object CXR constants
 # #############################################
 OBJ_DATA_DIR = DATA_BASE_DIR / "object-CXR"
+
 OBJ_ORIGINAL_TRAIN_CSV = OBJ_DATA_DIR / "train.csv"
 OBJ_ORIGINAL_DEV_CSV = OBJ_DATA_DIR / "dev.csv"
+
 OBJ_TRAIN_PKL = OBJ_DATA_DIR / "train.pkl"
 OBJ_VALID_PKL = OBJ_DATA_DIR / "valid.pkl"
 OBJ_TEST_PKL = OBJ_DATA_DIR / "test.pkl"
+
 OBJ_TRAIN_IMG_PATH = OBJ_DATA_DIR / "train"
 OBJ_VALID_IMG_PATH = OBJ_DATA_DIR / "train"
 OBJ_TEST_IMG_PATH = OBJ_DATA_DIR / "dev"
+
+
+# #############################################
+# KVASIR constants
+# #############################################
+
+KVASIR_DATA_DIR = DATA_BASE_DIR / "Kvasir"
+
+KVASIR_ORIGINAL_TRAIN_CSV = KVASIR_DATA_DIR / "train.csv"
+KVASIR_ORIGINAL_VAL_CSV = KVASIR_DATA_DIR / "val.csv"
+KVASIR_ORIGINAL_TEST_CSV = KVASIR_DATA_DIR / "test.csv"
+
+KVASIR_TRAIN_PKL = KVASIR_DATA_DIR / "train.pkl"
+KVASIR_VAL_PKL = KVASIR_DATA_DIR / "val.pkl"
+KVASIR_TEST_PKL = KVASIR_DATA_DIR / "test.pkl"
+
+KVASIR_TRAIN_IMG_PATH = KVASIR_DATA_DIR / "train/images"
+KVASIR_VAL_IMG_PATH = KVASIR_DATA_DIR / "val/images"
+KVASIR_TEST_IMG_PATH = KVASIR_DATA_DIR / "test/images"
+
+KVASIR_TRAIN_MASK_PATH = KVASIR_DATA_DIR / "train/masks"
+KVASIR_VAL_MASK_PATH = KVASIR_DATA_DIR / "val/masks"
+KVASIR_TEST_MASK_PATH = KVASIR_DATA_DIR / "test/masks"
+
+
+
+# #############################################
+# EndoDanhHuy constants
+# #############################################
+
+ENDODANHHUY_DATA_DIR = DATA_BASE_DIR / "EndoDanhHuy"
+
+ENDODANHHUY_ORIGINAL_TRAIN_CSV = ENDODANHHUY_DATA_DIR / "train.csv"
+ENDODANHHUY_ORIGINAL_VAL_CSV = ENDODANHHUY_DATA_DIR / "val.csv"
+ENDODANHHUY_ORIGINAL_TEST_CSV = ENDODANHHUY_DATA_DIR / "test.csv"
+
+ENDODANHHUY_TRAIN_PKL = ENDODANHHUY_DATA_DIR / "train.pkl"
+KENDODANHHUY_VAL_PKL = ENDODANHHUY_DATA_DIR / "val.pkl"
+ENDODANHHUY_TEST_PKL = ENDODANHHUY_DATA_DIR / "test.pkl"
+
+ENDODANHHUY_TRAIN_IMG_PATH = ENDODANHHUY_DATA_DIR / "train"
+ENDODANHHUY_VAL_IMG_PATH = ENDODANHHUY_DATA_DIR / "val"
+ENDODANHHUY_TEST_IMG_PATH = ENDODANHHUY_DATA_DIR / "test"
+
+ENDODANHHUY_TRAIN_XML_IMG_PATH = ENDODANHHUY_DATA_DIR / "train_xml"
+ENDODANHHUY_VAL_XML_IMG_PATH = ENDODANHHUY_DATA_DIR / "val_xml"
+ENDODANHHUY_TEST_XML_IMG_PATH = ENDODANHHUY_DATA_DIR / "test_xml"

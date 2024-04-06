@@ -11,7 +11,9 @@ from pytorch_lightning.loggers import WandbLogger
 
 from mgca.datasets.data_module import DataModule
 from mgca.datasets.detection_dataset import (OBJCXRDetectionDataset,
-                                             RSNADetectionDataset)
+                                             RSNADetectionDataset,
+                                             KVASIRDetectionDataset,
+                                             ENDODANHHUYDetectionDataset)
 from mgca.datasets.transforms import DetectionDataTransforms
 from mgca.models.backbones.detector_backbone import ResNetDetector
 from mgca.models.ssl_detector import SSLDetector
@@ -28,7 +30,8 @@ def cli_main():
     parser = ArgumentParser("Finetuning of object detection task for MGCA")
     parser.add_argument("--base_model", type=str, default="resnet_50")
     parser.add_argument("--ckpt_path", type=str,
-                        default="/home/r15user2/Documents/MGCA/checkpoints/mgca/resnet_50.ckpt")
+                        # default="/media/data3/home/anvh/workspacePython/MGCA/checkpoints/mgca/resnet_50.ckpt")
+                        default=None)
     parser.add_argument("--dataset", type=str,
                         default="rsna", help="rsna or object_cxr")
     parser.add_argument("--seed", type=int, default=42)
@@ -45,12 +48,18 @@ def cli_main():
     args.accelerator = "gpu"
 
     seed_everything(args.seed)
-
+    # print(os.path.join(os.getcwd(),"../../../checkpoints/mgca/resnet_50.ckpt"))
     if args.dataset == "rsna":
         datamodule = DataModule(RSNADetectionDataset, None, DetectionDataTransforms,
                                 args.data_pct, args.batch_size, args.num_workers)
     elif args.dataset == "object_cxr":
         datamodule = DataModule(OBJCXRDetectionDataset, None, DetectionDataTransforms,
+                                args.data_pct, args.batch_size, args.num_workers)
+    elif args.dataset == "kvasir":
+        datamodule = DataModule(KVASIRDetectionDataset, None, DetectionDataTransforms,
+                                args.data_pct, args.batch_size, args.num_workers)
+    elif args.dataset == "endo_danhhuy":
+        datamodule = DataModule(ENDODANHHUYDetectionDataset, None, DetectionDataTransforms,
                                 args.data_pct, args.batch_size, args.num_workers)
     else:
         raise RuntimeError(f"{args.dataset} does not exist!")
@@ -67,8 +76,8 @@ def cli_main():
         args.img_encoder.model.load_state_dict(ckpt_dict)
 
     # Freeze encoder
-    for param in args.img_encoder.parameters():
-        param.requires_grad = False
+    # for param in args.img_encoder.parameters():
+    #     param.requires_grad = False
 
     model = SSLDetector(**args.__dict__)
 
@@ -76,7 +85,7 @@ def cli_main():
     now = datetime.datetime.now(tz.tzlocal())
     extension = now.strftime("%Y_%m_%d_%H_%M_%S")
     ckpt_dir = os.path.join(
-        BASE_DIR, f"../../../data/ckpts/detection/{extension}")
+        BASE_DIR, f"../../../data/ckpts/detection_{args.dataset}/{extension}")
     os.makedirs(ckpt_dir, exist_ok=True)
     callbacks = [
         LearningRateMonitor(logging_interval="step"),
@@ -89,8 +98,9 @@ def cli_main():
         BASE_DIR, f"../../../data")
     os.makedirs(logger_dir, exist_ok=True)
     wandb_logger = WandbLogger(
-        project="detection", save_dir=logger_dir,
-        name=f"MGCA_{args.dataset}_{args.data_pct}_{extension}")
+        project=f"detection_{args.dataset}", save_dir=logger_dir,
+        # name=f"MGCA_withoutPreTrain_{args.dataset}_{args.data_pct}_{extension}")
+        name=f"MGCA_without_pretrain{args.dataset}_{args.data_pct}_{extension}")
     trainer = Trainer.from_argparse_args(
         args=args,
         callbacks=callbacks,

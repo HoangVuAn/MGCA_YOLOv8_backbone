@@ -41,7 +41,7 @@ class SSLDetector(LightningModule):
         losses = []
         for _ in range(len(losses_name)):
             losses.append([])
-        for i in range(3):
+        for i in range(3):  # i: 3 predict cua yolov3
             _loss_item = self.yolo_losses[i](outputs[i], batch["labels"])
             for j, l in enumerate(_loss_item):
                 losses[j].append(l)
@@ -110,6 +110,13 @@ class SSLDetector(LightningModule):
 
     def test_step(self, batch, batch_idx):
         return self.shared_step(batch, batch_idx, "test")
+    
+    def inference(self, img):
+        outputs = self.model(img)
+        output = non_max_suppression(outputs, self.model.classes,
+                                         conf_thres=self.hparams.conf_thres,
+                                         nms_thres=self.hparams.nms_thres)
+        return output
 
     def validation_epoch_end(self, validation_step_outputs):
         map = self.val_map.compute()["map"]
@@ -156,7 +163,7 @@ class ModelMain(nn.Module):
             [[30, 61], [62, 45], [59, 119]],
             [[10, 13], [16, 30], [33, 23]]
         ]) * 224 / 416
-        self.classes = 1
+        self.classes = 6
 
         _out_filters = self.backbone.filters
         #  embedding0

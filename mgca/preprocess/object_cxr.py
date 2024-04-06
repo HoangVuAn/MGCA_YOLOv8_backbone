@@ -45,7 +45,7 @@ def polylabel_box(anno):
     p = LineString(np.asarray(polygon + polygon[:2]).reshape(-1, 2))
     c = polylabel(p.buffer(100), tolerance=10)
     box = np.asarray(p.bounds).reshape(-1, 2)
-    cxy = np.asarray(c)
+    cxy = np.asarray([c.x, c.y])
     wh = np.abs(box - cxy)
     wh = np.maximum(wh[0], wh[1])
     box = [cxy - wh, wh * 2]  # xmin, ymin, w, h
