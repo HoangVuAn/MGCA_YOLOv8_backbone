@@ -163,7 +163,7 @@ class ModelMain(nn.Module):
             [[30, 61], [62, 45], [59, 119]],
             [[10, 13], [16, 30], [33, 23]]
         ]) * 224 / 416
-        self.classes = 6
+        self.classes = 1
 
         _out_filters = self.backbone.filters
         #  embedding0

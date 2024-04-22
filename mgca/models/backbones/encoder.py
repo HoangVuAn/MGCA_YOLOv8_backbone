@@ -7,6 +7,8 @@ from mgca.models.backbones import cnn_backbones
 from mgca.models.backbones.med import BertModel
 from mgca.models.backbones.vits import create_vit
 from transformers import AutoTokenizer, BertConfig, BertTokenizer, logging
+import cv2
+import math
 
 logging.set_verbosity_error()
 
@@ -134,6 +136,24 @@ class ImageEncoder(nn.Module):
 
     def vit_forward(self, x):
         return self.model(x, register_blk=11)
+    
+    def yolov8_backbone_forward(self, x):
+        # x = cv2.resize(x, (640, 640), interpolation=cv2.INTER_LINEAR)
+        # h0, w0 = x.shape[:2]
+        # r = 640 / max(h0, w0)  # ratio
+        # if r != 1:  # if sizes are not equal
+        #     w, h = (min(math.ceil(w0 * r), self.imgsz), min(math.ceil(h0 * r), 640))
+        #     x = cv2.resize(x, (w, h), interpolation=cv2.INTER_LINEAR)
+        x = nn.Upsample(size=(640, 640), mode="bilinear",
+                        align_corners=True)(x)
+        for i in range(10):
+            x = self.model[i](x)
+            if i == 8:
+                local_features = x
+                local_features = rearrange(local_features, "b c w h -> b (w h) c")
+        x = self.pool(x)
+        x = x.view(x.size(0), -1)
+        return x, local_features.contiguous()
 
     def forward(self, x, get_local=False):
         if "resnet" in self.model_name:
@@ -141,6 +161,8 @@ class ImageEncoder(nn.Module):
         elif "vit" in self.model_name:
             img_feat = self.vit_forward(x)
             return img_feat[:, 0].contiguous(), img_feat[:, 1:].contiguous()
+        elif "yolov8" in self.model_name:
+            return self.yolov8_backbone_forward(x)
 
 
 class BertEncoder(nn.Module):

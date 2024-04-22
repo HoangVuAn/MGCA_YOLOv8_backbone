@@ -30,8 +30,8 @@ def cli_main():
     parser = ArgumentParser("Finetuning of object detection task for MGCA")
     parser.add_argument("--base_model", type=str, default="resnet_50")
     parser.add_argument("--ckpt_path", type=str,
-                        # default="/media/data3/home/anvh/workspacePython/MGCA/checkpoints/mgca/resnet_50.ckpt")
-                        default=None)
+                        default="/media/data3/home/anvh/workspacePython/MGCA/checkpoints/mgca/resnet_50.ckpt")
+                        # default=None)
     parser.add_argument("--dataset", type=str,
                         default="rsna", help="rsna or object_cxr")
     parser.add_argument("--seed", type=int, default=42)
@@ -76,8 +76,8 @@ def cli_main():
         args.img_encoder.model.load_state_dict(ckpt_dict)
 
     # Freeze encoder
-    # for param in args.img_encoder.parameters():
-    #     param.requires_grad = False
+    for param in args.img_encoder.parameters():
+        param.requires_grad = True
 
     model = SSLDetector(**args.__dict__)
 
@@ -100,7 +100,7 @@ def cli_main():
     wandb_logger = WandbLogger(
         project=f"detection_{args.dataset}", save_dir=logger_dir,
         # name=f"MGCA_withoutPreTrain_{args.dataset}_{args.data_pct}_{extension}")
-        name=f"MGCA_without_pretrain{args.dataset}_{args.data_pct}_{extension}")
+        name=f"MGCA_without_freeze_encoder{args.dataset}_{args.data_pct}_{extension}")
     trainer = Trainer.from_argparse_args(
         args=args,
         callbacks=callbacks,
