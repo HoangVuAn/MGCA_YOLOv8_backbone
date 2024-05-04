@@ -16,6 +16,7 @@ from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.plugins import DDP2Plugin, DDPPlugin
 from mgca.datasets.data_module import DataModule
 from mgca.datasets.pretrain_dataset import (MultimodalPretrainingDataset,
+                                            MultimodalPretrainingDatasetEndo,
                                             multimodal_collate_fn)
 from mgca.datasets.transforms import DataTransforms
 from mgca.models.backbones.encoder import BertEncoder, ImageEncoder
@@ -110,9 +111,9 @@ class MGCA(LightningModule):
 
         # compute retrieval accuracy
         i2t_acc1, i2t_acc5 = self.precision_at_k(
-            scores, labels, top_k=(1, 2))
+            scores, labels, top_k=(1, 5))
         t2i_acc1, t2i_acc5 = self.precision_at_k(
-            scores1, labels, top_k=(1, 2))
+            scores1, labels, top_k=(1, 5))
         acc1 = (i2t_acc1 + t2i_acc1) / 2.
         acc5 = (i2t_acc5 + t2i_acc5) / 2.
 
@@ -474,12 +475,12 @@ def cli_main():
     args = parser.parse_args()
 
     args.deterministic = True
-    args.max_epochs = 50
+    args.max_epochs = 500
 
     # seed
     seed_everything(args.seed)
 
-    datamodule = DataModule(MultimodalPretrainingDataset, multimodal_collate_fn,
+    datamodule = DataModule(MultimodalPretrainingDatasetEndo, multimodal_collate_fn,
                             DataTransforms, args.data_pct,
                             args.batch_size, args.num_workers)
 

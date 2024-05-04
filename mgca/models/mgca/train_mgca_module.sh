@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=0 python mgca_module_YOLOv8_BB.py --gpus 1 --strategy ddp --batch_size 5 --num_workers 12 --img_encode yolov8_backbone

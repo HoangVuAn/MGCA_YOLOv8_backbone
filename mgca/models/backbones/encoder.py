@@ -144,14 +144,20 @@ class ImageEncoder(nn.Module):
         # if r != 1:  # if sizes are not equal
         #     w, h = (min(math.ceil(w0 * r), self.imgsz), min(math.ceil(h0 * r), 640))
         #     x = cv2.resize(x, (w, h), interpolation=cv2.INTER_LINEAR)
+        cpu = torch.device('cpu')
+        numpy_image = x[0].to(cpu).permute(1, 2, 0).numpy()  # Chuyển chiều kích thước
+        cv2.imwrite("output_image_train0.jpg", (numpy_image+1)*255/2)
         x = nn.Upsample(size=(640, 640), mode="bilinear",
                         align_corners=True)(x)
+        numpy_image = x[0].to(cpu).permute(1, 2, 0).numpy()  # Chuyển chiều kích thước
+
+        cv2.imwrite("output_image_train1.jpg", (numpy_image+1)*255/2)
         for i in range(10):
             x = self.model[i](x)
             if i == 8:
                 local_features = x
                 local_features = rearrange(local_features, "b c w h -> b (w h) c")
-        x = self.pool(x)
+        # x = self.pool(x)
         x = x.view(x.size(0), -1)
         return x, local_features.contiguous()
 

@@ -3,7 +3,7 @@ from torch.utils.data import DataLoader
 
 
 class DataModule(pl.LightningDataModule):
-    def __init__(self, dataset, collate_fn, transforms, data_pct, batch_size, num_workers, crop_size=224):
+    def __init__(self, dataset, collate_fn, transforms, data_pct, batch_size, num_workers, crop_size=500):
         super().__init__()
 
         self.dataset = dataset

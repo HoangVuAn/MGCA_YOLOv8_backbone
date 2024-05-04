@@ -41,4 +41,4 @@ def yolov8_backbone(pretrained=True):
     model = YOLO(model='yolov8n.pt', task="detect")
     # feature_dims = model.fc.in_features
     bb_neck_layers = model.model._modules['model'][:10]
-    return bb_neck_layers, 256, 256
+    return bb_neck_layers, 102400, 256

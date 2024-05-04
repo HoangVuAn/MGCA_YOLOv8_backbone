@@ -190,6 +190,18 @@ MIMIC_CXR_VIEW_COL = "ViewPosition"
 MIMIC_CXR_PATH_COL = "Path"
 MIMIC_CXR_SPLIT_COL = "split"
 
+
+# #############################################
+# ENDO-IMG_TEXT constants
+# #############################################
+ENDO_DATA_DIR = DATA_BASE_DIR.parent.parent.parent / "datasets/Data_image_text"
+
+ENDO_MASTER_CSV = ENDO_DATA_DIR / "text_vn_en_master.xlsx"
+ENDO_PATH_COL = "file_name_in_dataset"
+ENDO_SPLIT_COL = "split"
+
+
+
 # #############################################
 # RSNA constants
 # #############################################
